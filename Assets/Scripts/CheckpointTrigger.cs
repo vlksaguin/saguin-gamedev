@@ -1,43 +1,49 @@
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 public class CheckpointTrigger : MonoBehaviour
 {
-    [SerializeField]
-    GameObject obj;
-
-    [SerializeField]
-    List<GameObject> allPlatforms = new();
-
-    Vector3 pos;
+    public Color activeColor = Color.green;
+    private MeshRenderer meshRenderer;
+    private Collider platformCollider;
+    private bool isActivated = false;
 
     void Start()
     {
-        pos = obj.transform.position;
-        if (File.Exists(Application.persistentDataPath + "/rotationdata.json"))
-        {
-            var data = JsonUtility.FromJson<Vector3>(Application.persistentDataPath + "/rotationdata.json");
-        }
+        meshRenderer = GetComponent<MeshRenderer>();
+        platformCollider = GetComponent<Collider>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (other.CompareTag("Player") && !isActivated)
         {
-            obj.transform.Rotate(Vector3.up, 45);
+            PlayerRespawn respawn = other.GetComponent<PlayerRespawn>();
+
+            if (respawn != null)
+            {
+                // Calculate exact center top using collider bounds
+                Vector3 spawnPos;
+                if (platformCollider != null)
+                {
+                    spawnPos = new Vector3(
+                        platformCollider.bounds.center.x,
+                        platformCollider.bounds.max.y + 1.2f,
+                        platformCollider.bounds.center.z
+                    );
+                }
+                else
+                {
+                    spawnPos = transform.position + Vector3.up * 1.5f;
+                }
+
+                respawn.SetCheckpoint(spawnPos);
+                isActivated = true;
+
+                if (meshRenderer != null)
+                {
+                    meshRenderer.material.color = activeColor;
+                }
+            }
         }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        string data = JsonUtility.ToJson(obj.transform.rotation);
-        File.WriteAllText(Application.persistentDataPath + "/rotationdata.json", data);
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-
     }
 }
