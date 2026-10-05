@@ -6,7 +6,7 @@ public class MovementController : MonoBehaviour
 
     // movement
     public float moveSpeed = 6f;
-    public float jumpForce = 5f;
+    public float jumpForce = 4f;
 
     // ground check
     public Transform groundCheck;
