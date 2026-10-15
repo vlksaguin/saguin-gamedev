@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Pickup
   - ENV
+  - Projectile
+  - Target
   layers:
   - Default
   - TransparentFX
